@@ -4,10 +4,9 @@ Counterfactual Explanations for Multivariate Time Series Data
 Maintainer: 
 * **Burak Aksar** - *baksar@bu.edu* 
 
-Authors:  
-* **Emre Ates** - *ates@bu.edu* 
+Developers:  
+* **Emre Ates** - *ates@bu.edu*  & **Burak Aksar** - *baksar@bu.edu* 
 
-* **Burak Aksar** - *baksar@bu.edu* 
 
 ## Requirements
 These files use data sets that are uploaded to Zenodo, at the [URL](https://doi.org/10.5281/zenodo.3760027)
