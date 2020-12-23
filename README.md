@@ -1,19 +1,13 @@
 # CoMTE
 Counterfactual Explanations for Multivariate Time Series Data
 
+Maintainer: 
+* **Burak Aksar** - *baksar@bu.edu* 
 
-Authors:
-    Emre Ates (1), Burak Aksar (1), Vitus J. Leung (2), Ayse K. Coskun (1)
+Authors:  
+* **Emre Ates** - *ates@bu.edu* 
 
-Affiliations:
-    (1) Department of Electrical and Computer Engineering, Boston University
-    (2) Sandia National Laboratories
-
-This work has been partially funded by Sandia National Laboratories. Sandia
-National Laboratories is a multimission laboratory managed and operated by
-National Technology and Engineering Solutions of Sandia, LLC., a wholly owned
-subsidiary of Honeywell International, Inc., for the U.S. Department of
-Energy’s National Nuclear Security Administration under Contract DENA0003525.
+* **Burak Aksar** - *baksar@bu.edu* 
 
 ## Requirements
 These files use data sets that are uploaded to Zenodo, at the [URL](https://doi.org/10.5281/zenodo.3760027)
@@ -32,18 +26,31 @@ experiments in the paper, and the remaining files are shared code for data
 loading, explainability methods, or machine learning methods.
 
 ## Usage
-For faithfulness experiments, run `./faithfulness.py --dataset [hpas,
-taxonomist, natops, test]`
 
-For robustness experiments, first train using `./robustness.py --dataset [hpas,
-taxonomist, natops, test] --method rf --train --outdir ./robustness`
-and then calculate robustness using `./robustness.py --dataset [hpas,
-taxonomist, natops, test] --method rf --outdir ./robustness --partition [0-50]`
-Robustness typically takes a very long time (over 24 hours) even with partitions.
+To be updated
 
-The partition is optional, and only calculates 1/50 of the results. The outdir
-argument is used to specify where the trained classifier and results are placed.
 
-The jupyter notebooks can also be executed. Only the generalizability notebook takes a
-significant amount of time to execute however we provide pickle files so results can be easily regenerated.
+## Authors
+
+[Counterfactual Explanations for Machine Learning
+on Multivariate Time Series Data](https://arxiv.org/pdf/2008.10781.pdf)
+
+Authors:
+    Emre Ates (1), Burak Aksar (1), Vitus J. Leung (2), Ayse K. Coskun (1)
+
+Affiliations:
+    (1) Department of Electrical and Computer Engineering, Boston University
+    (2) Sandia National Laboratories
+
+This work has been partially funded by Sandia National Laboratories. Sandia
+National Laboratories is a multimission laboratory managed and operated by
+National Technology and Engineering Solutions of Sandia, LLC., a wholly owned
+subsidiary of Honeywell International, Inc., for the U.S. Department of
+Energy’s National Nuclear Security Administration under Contract DENA0003525.
+
+## License
+
+This project is licensed under the BSD 3-Clause License - see the LICENSE file for details
+
+
 
