@@ -1,0 +1,11 @@
+pandas
+tables
+numpy
+joblib
+scikit-optimize
+mlrose
+matplotlib
+seaborn
+lime
+shap
+tensorflow
