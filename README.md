@@ -24,6 +24,18 @@ Instructions for `fast_features` package are inside the fast_features directory.
 
 ## Usage
 
+```python
+import explainers
+comte = explainers.OptimizedSearch(pipeline, timeseries, labels, silent=False, threads=1)
+
+#Call explain method with a sample from timeseries
+comte.explain(test_timeseries.loc[['5c15428439747d4a8fa8f85d_60'], :, :], to_maximize=5, savefig=False)
+```
+
+* pipeline: A blackbox ML model that can return prediction probabilities
+* timeseries: Data
+* labels: Labels
+
 
 
 ## Authors
