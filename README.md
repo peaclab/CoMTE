@@ -14,15 +14,16 @@ These files use data sets that are uploaded to Zenodo, at the [URL](https://doi.
 The code assumes that the data is located at ./data
 
 A python 3.x installation is required, as well as the packages inside
-`requirements.txt` and the `fast_features` package. Instructions for `fast_features` package are inside the fast_features directory.
+`requirements.txt` and the `fast_features` package. 
 
 ```
 pip3 install --user -r requirements.txt
 ```
 
+Instructions for `fast_features` package are inside the fast_features directory.
+
 ## Usage
 
-To be updated
 
 
 ## Authors
