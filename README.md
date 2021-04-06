@@ -20,10 +20,6 @@ A python 3.x installation is required, as well as the packages inside
 pip3 install --user -r requirements.txt
 ```
 
-The jupyter notebooks as well as `faithfulness.py` and `robustness.py` are entry points for different
-experiments in the paper, and the remaining files are shared code for data
-loading, explainability methods, or machine learning methods.
-
 ## Usage
 
 To be updated
