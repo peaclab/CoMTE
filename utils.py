@@ -1,5 +1,4 @@
-"""Contains the code for SC'20 paper "Counterfactual Explanations for Machine
-Learning on Multivariate HPC Time Series Data"
+"""Contains the code for ICAPAI'21 paper "Counterfactual Explanations for Multivariate Time Series"
 
 Authors:
     Emre Ates (1), Burak Aksar (1), Vitus J. Leung (2), Ayse K. Coskun (1)
