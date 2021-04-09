@@ -6,6 +6,3 @@ scikit-optimize
 mlrose
 matplotlib
 seaborn
-lime
-shap
-tensorflow
