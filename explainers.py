@@ -25,6 +25,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from sklearn.neighbors import KDTree
+#Workaround for mlrose package
+import six
+import sys
+sys.modules['sklearn.externals.six'] = six
 import mlrose
 
 
