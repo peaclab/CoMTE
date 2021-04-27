@@ -14,6 +14,8 @@ features = generate_features(df.values)
 ## Installation
 Two binary packages are provided with this repository, and can be installed in the following way:
 
+Make sure that you upgrade pip before installing the wheel.
+
 `For python 3.6.x: ${PIP} install ./dist/fast_features-0.1.0-cp36-cp36m-linux_x86_64.whl`
 
 `For python 3.7.x: ${PIP} install ./dist/fast_features-0.1.0-cp37-cp37m-linux_x86_64.whl`

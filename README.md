@@ -21,9 +21,11 @@ Developers:
 
 
 ## Requirements
-These files use data sets that are uploaded to Zenodo, at the [URL](https://doi.org/10.5281/zenodo.3760027)
 
-The code assumes that the data is located at ./data
+We provide NATOPS dataset in the repo and you can start using CoMTE without downloading the other data sets.
+
+In case you want to see more examples, we use HPC data sets in our paper and these are located on [Zenodo](https://doi.org/10.5281/zenodo.3760027). After you click download, it will send a request to the owner, and after the approval, you will receive a link to download HPC data sets. 
+
 
 A python 3.x installation is required, as well as the packages inside
 `requirements.txt` and the `fast_features` package. 
@@ -34,7 +36,11 @@ pip3 install --user -r requirements.txt
 
 Instructions for `fast_features` package are inside the fast_features directory.
 
+
+
 ## Usage
+
+The code assumes that the data is located at ./data
 
 ```python
 import explainers
