@@ -55,6 +55,11 @@ comte.explain(test_timeseries.loc[['5c15428439747d4a8fa8f85d_60'], :, :], to_max
 * labels: Labels
 
 
+## Known Issues
+* On M1 Macbooks, the error `AttributeError: 'NoneType' object has no attribute 'copy'` 
+  might be raised in explainers.py. Setting `threads=1` in the constructor for 
+  `explainers.OptimizedSearch` has been reported to fix the issue.
+
 
 ## Authors
 
