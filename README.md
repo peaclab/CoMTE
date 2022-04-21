@@ -63,7 +63,11 @@ comte.explain(test_timeseries.loc[['5c15428439747d4a8fa8f85d_60'], :, :], to_max
 
 ## Authors
 
-[Counterfactual Explanations for Machine Learning
+ICAPAI'21: [Counterfactual Explanations for
+Multivariate Time Series](https://www.bu.edu/peaclab/files/2021/05/CoMTE___ICAPAI.pdf)
+
+
+ArXiv: [Counterfactual Explanations for Machine Learning
 on Multivariate Time Series Data](https://arxiv.org/pdf/2008.10781.pdf)
 
 Authors:
