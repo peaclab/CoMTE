@@ -46,7 +46,7 @@ def get_dataset(set_name, binary=False, **kwargs):
     return load_hpc_data(rootdir / set_name, **kwargs)
 
 
-def windowize(timeseries, labels, window=45, trim=60, skip=15, test=False):
+def windowize(timeseries, labels, window=45, trim=60, skip=15, test=False, **kwargs):
     result_labels = []
     result_timeseries = []
     node_ids = labels.index.get_level_values('node_id').unique()
