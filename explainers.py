@@ -29,7 +29,7 @@ from sklearn.neighbors import KDTree
 import six
 import sys
 sys.modules['sklearn.externals.six'] = six
-import mlrose
+# import mlrose
 
 
 class BaseExplanation:
@@ -458,16 +458,16 @@ class OptimizedSearch(BaseExplanation):
             columns, reg=0.8, max_features=num_features,
             maximize=False
         )
-        problem = mlrose.DiscreteOpt(
-            length=len(columns), fitness_fn=fitness_fn,
-            maximize=False, max_val=2)
-        best_state, best_fitness = mlrose.random_hill_climb(
-            problem,
-            max_attempts=max_attempts,
-            max_iters=maxiter,
-            init_state=init,
-            restarts = 5,
-        )
+        # problem = mlrose.DiscreteOpt(
+        #     length=len(columns), fitness_fn=fitness_fn,
+        #     maximize=False, max_val=2)
+        # best_state, best_fitness = mlrose.random_hill_climb(
+        #     problem,
+        #     max_attempts=max_attempts,
+        #     max_iters=maxiter,
+        #     init_state=init,
+        #     restarts = 5,
+        # )
 
         self.discrete_state = True
         return best_state
