@@ -137,7 +137,6 @@ def _get_features(node_id, features=None, data_path=None, trim=60, **kwargs):
             data = _TIMESERIES.loc[node_id, :, :]
         if len(data) < trim * 2:
             return pd.DataFrame()
-        # return pd.DataFrame()
         return pd.DataFrame(
             generate_features(
                 np.asarray(data.values.astype('float'), order='C'),
@@ -161,7 +160,6 @@ def _get_features(node_id, features=None, data_path=None, trim=60, **kwargs):
                      for feature in features
                      for metric in _TIMESERIES.columns
                      ])
-        # return pd.DataFrame()
     else:
         data = np.asarray(_TIMESERIES[node_id].astype(float), order='C')
         # numpy array format
@@ -169,7 +167,6 @@ def _get_features(node_id, features=None, data_path=None, trim=60, **kwargs):
             return pd.DataFrame()
         return generate_features(data, trim).reshape(
             (1, _TIMESERIES.shape[2] * 11))
-        # return pd.DataFrame()
 
 
 class _FeatureExtractor:
