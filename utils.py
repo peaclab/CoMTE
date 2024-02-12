@@ -19,8 +19,9 @@ import logging
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
+from scipy.stats import skew, kurtosis
 
-from fast_features import generate_features
+# from fast_features import generate_features
 
 _TIMESERIES = None
 
@@ -136,6 +137,7 @@ def _get_features(node_id, features=None, data_path=None, trim=60, **kwargs):
             data = _TIMESERIES.loc[node_id, :, :]
         if len(data) < trim * 2:
             return pd.DataFrame()
+        # return pd.DataFrame()
         return pd.DataFrame(
             generate_features(
                 np.asarray(data.values.astype('float'), order='C'),
@@ -159,6 +161,7 @@ def _get_features(node_id, features=None, data_path=None, trim=60, **kwargs):
                      for feature in features
                      for metric in _TIMESERIES.columns
                      ])
+        # return pd.DataFrame()
     else:
         data = np.asarray(_TIMESERIES[node_id].astype(float), order='C')
         # numpy array format
@@ -166,6 +169,7 @@ def _get_features(node_id, features=None, data_path=None, trim=60, **kwargs):
             return pd.DataFrame()
         return generate_features(data, trim).reshape(
             (1, _TIMESERIES.shape[2] * 11))
+        # return pd.DataFrame()
 
 
 class _FeatureExtractor:
@@ -181,3 +185,39 @@ class _FeatureExtractor:
         return _get_features(
             node_id, features=self.features, data_path=self.data_path,
             window_size=self.window_size, trim=self.trim)
+
+
+def generate_features(input_array, trim=0):
+    # Ensure input is a numpy array
+    input_array = np.asarray(input_array)
+    
+    # Trim the input array if needed
+    if trim > 0:
+        input_array = input_array[trim:-trim, :]
+    
+    # Initialize a list to store results
+    results = []
+    
+    # Iterate over columns
+    for col in input_array.T:  # Transpose to iterate over columns
+        # Calculate statistics for each column
+        max_val = np.amax(col)
+        min_val = np.amin(col)
+        mean_val = np.mean(col)
+        std_val = np.std(col, ddof=0)  # Population standard deviation
+        skew_val = skew(col, bias=True)  # Population skewness
+        kurt_val = kurtosis(col, fisher=True, bias=True)  # Fisher's definition, bias-corrected
+        
+        # Percentiles
+        perc05 = np.percentile(col, 5)
+        perc25 = np.percentile(col, 25)
+        perc50 = np.percentile(col, 50)
+        perc75 = np.percentile(col, 75)
+        perc95 = np.percentile(col, 95)
+        
+        # Append the results
+        results.extend([max_val, min_val, mean_val, std_val, skew_val, kurt_val,
+                        perc05, perc25, perc50, perc75, perc95])
+    
+    # Convert the results into a numpy array and reshape to match the expected output
+    return np.array(results).reshape(-1, 11)
