@@ -3,7 +3,6 @@ tables
 numpy
 joblib
 scikit-optimize
-mlrose
 tqdm
 matplotlib
 seaborn

@@ -1,3 +1,12 @@
+## Test Enviroment
+* M2 Pro MacOS 14.3
+* Python 3.9.18 with Anaconda
+
+Run the following commands:
+* `python -m pip install --upgrade pip`
+* `pip install -U scikit-learn`
+* No need to install `mlrose`, skipped from requirements.txt
+
 # CoMTE
 Counterfactual Explanations for Multivariate Time Series Data
 
