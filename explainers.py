@@ -470,7 +470,7 @@ class OptimizedSearch(BaseExplanation):
         # )
 
         self.discrete_state = True
-        return best_state
+        return init
 
     def _prune_explanation(self, explanation, x_test, dist,
                            to_maximize, max_features=None):
