@@ -182,21 +182,9 @@ def read_csv_wrapper(root_dir, pattern="F*.csv", **kwargs):
 
         df.index = pd.MultiIndex.from_product([['node_{}'.format(label)], df.index], names=['node_id', 'timestamp'])
         data[data_type].append(df)
-        # df_labels = pd.DataFrame({'label': [2]}, index=[2])
-        # df_labels = pd.DataFrame([label])
-        # df_labels.index = pd.MultiIndex.from_product([[label], df_labels.index], names=['node_id', 'timestamp'])
-        # data['labels_' + data_type].append(df_labels)
-        # Concatenate all training DataFrames into one DataFrame
 
     train_df = pd.concat(data['train'])
     test_df = pd.concat(data['test'])
-
-    # # Convert label lists into DataFrames
-    # train_labels_df =  pd.concat(data['labels_train'])
-    # test_labels_df =  pd.concat(data['labels_test'])
-    # train_labels_df.index.name = 'node_id'
-    # test_labels_df.index.name = 'node_id'
-    
 
     train_labels_df = pd.read_csv('./data/CSTR1/labels.csv')
     train_labels_df['label'].map(str)
