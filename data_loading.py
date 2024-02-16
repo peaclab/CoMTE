@@ -18,6 +18,8 @@ import sys
 import logging
 import random
 from pathlib import Path
+import os
+from glob import glob
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -25,6 +27,11 @@ from tqdm import tqdm
 
 
 def get_dataset(set_name, binary=False, **kwargs):
+    if set_name == 'cstr':
+        kwargs['window'] = 15
+        kwargs['skip'] = 1
+        kwargs['trim'] = 1
+        return get_dataset_csv(**kwargs)
     if set_name not in ['taxonomist', 'hpas', 'test', 'natops']:
         raise ValueError("Wrong set_name")
     if binary:
@@ -162,3 +169,53 @@ def load_hpc_data(data_folder, make_binary=False, for_autoencoder=False, **kwarg
         test_timeseries = test_timeseries.loc[test_node_ids, :]
 
     return timeseries, labels, test_timeseries, test_labels
+
+def read_csv_wrapper(root_dir, pattern="F*.csv", **kwargs):
+    data = {'train': [], 'test': [], 'labels_train': [], 'labels_test': []}
+
+    for file_path in glob(os.path.join(root_dir, pattern)):
+        file_name = os.path.basename(file_path)
+        label = int(file_name.split('_')[0][1])  # Extracting the label (F1, F2, ..., F9) as integer
+        data_type = 'train' if 'train' in file_name else 'test'
+
+        df = pd.read_csv(file_path)
+
+        df.index = pd.MultiIndex.from_product([['node_{}'.format(label)], df.index], names=['node_id', 'timestamp'])
+        data[data_type].append(df)
+        # df_labels = pd.DataFrame({'label': [2]}, index=[2])
+        # df_labels = pd.DataFrame([label])
+        # df_labels.index = pd.MultiIndex.from_product([[label], df_labels.index], names=['node_id', 'timestamp'])
+        # data['labels_' + data_type].append(df_labels)
+        # Concatenate all training DataFrames into one DataFrame
+
+    train_df = pd.concat(data['train'])
+    test_df = pd.concat(data['test'])
+
+    # # Convert label lists into DataFrames
+    # train_labels_df =  pd.concat(data['labels_train'])
+    # test_labels_df =  pd.concat(data['labels_test'])
+    # train_labels_df.index.name = 'node_id'
+    # test_labels_df.index.name = 'node_id'
+    
+
+    train_labels_df = pd.read_csv('./data/CSTR1/labels.csv')
+    train_labels_df['label'].map(str)
+    train_labels_df = train_labels_df.set_index('node_id')
+    train_labels_df.index = pd.MultiIndex.from_product([train_labels_df.index, [0]], names=['node_id', 'timestamp'])
+
+    test_labels_df = pd.read_csv('./data/CSTR1/labels.csv')
+    test_labels_df['label'].map(str)
+    test_labels_df = test_labels_df.set_index('node_id')
+    test_labels_df.index = pd.MultiIndex.from_product([test_labels_df.index, [0]], names=['node_id', 'timestamp'])
+
+
+    timeseries, labels = process_data(train_df, train_labels_df, **kwargs)
+    test_timeseries, test_labels = process_data(test_df, test_labels_df, **kwargs)
+    
+    return timeseries, labels, test_timeseries, test_labels
+
+def get_dataset_csv(**kwargs):
+    pattern = kwargs.get('pattern', "F*.csv")
+    root_dir = kwargs.get('rootdir', './data/CSTR1')
+    train_data, train_labels, test_data, test_labels = read_csv_wrapper(root_dir, pattern, **kwargs)
+    return train_data, train_labels, test_data, test_labels
