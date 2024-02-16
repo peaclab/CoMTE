@@ -349,7 +349,7 @@ class BruteForceSearch(BaseExplanation):
             return []
         if not self.silent:
             logging.info("Working on turning label from %s to %s",
-                         orig_label, to_maximize)
+                         orig_label+1, to_maximize+1)
         distractors = self._get_distractors(
             x_test, to_maximize, n_distractors=self.num_distractors)
         best_explanation = set()
@@ -371,7 +371,7 @@ class BruteForceSearch(BaseExplanation):
                     if current_best > best_explanation_score:
                         best_explanation = explanation
                         best_explanation_score = current_best
-                    if current_best <= prev_best:
+                    if current_best <= prev_best: # stop when proba starts decreasing
                         break
                     prev_best = current_best
                     if not self.dont_stop:
@@ -380,12 +380,12 @@ class BruteForceSearch(BaseExplanation):
                         len(best_explanation) != 0 and
                         len(explanation) >= len(best_explanation)):
                     break
-                best_column, _ = self._find_best(modified, dist, to_maximize)
+                best_column, _ = self._find_best(modified, dist, to_maximize) # find best column to increase pred proba
                 if best_column is None:
                     break
                 if not self.silent:
                     self._plot_changed(best_column, modified, dist, savefig=savefig)
-                modified[best_column] = dist[best_column].values
+                modified[best_column] = dist[best_column].values # update column in modified
                 explanation.append(best_column)
 
         if not return_dist:
