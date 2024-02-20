@@ -349,7 +349,7 @@ class BruteForceSearch(BaseExplanation):
             return []
         if not self.silent:
             logging.info("Working on turning label from %s to %s",
-                         orig_label+1, to_maximize+1)
+                         orig_label, to_maximize)
         distractors = self._get_distractors(
             x_test, to_maximize, n_distractors=self.num_distractors)
         best_explanation = set()
