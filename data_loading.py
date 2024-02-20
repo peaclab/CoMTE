@@ -26,9 +26,9 @@ from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
 
-def get_dataset(set_name, binary=False, **kwargs):
+def get_dataset(set_name, binary=False, window_size = 10, **kwargs):
     if set_name == 'cstr':
-        kwargs['window'] = 15
+        kwargs['window'] = window_size
         kwargs['skip'] = 1
         kwargs['trim'] = 1
         return get_dataset_csv(**kwargs)
@@ -205,5 +205,39 @@ def read_csv_wrapper(root_dir, pattern="F*.csv", **kwargs):
 def get_dataset_csv(**kwargs):
     pattern = kwargs.get('pattern', "F*.csv")
     root_dir = kwargs.get('rootdir', './data/CSTR1')
-    train_data, train_labels, test_data, test_labels = read_csv_wrapper(root_dir, pattern, **kwargs)
+    # train_data, train_labels, test_data, test_labels = read_csv_wrapper(root_dir, pattern, **kwargs)
+    train_data, train_labels, test_data, test_labels = windowize_csv(root_dir, pattern, **kwargs)
     return train_data, train_labels, test_data, test_labels
+
+def windowize_csv(root_dir, pattern="F*.csv", window=5, **kwargs):
+    window_size = window
+    data = {'train': [], 'test': [], 'labels_train': [], 'labels_test': []}
+
+    for file_path in glob(os.path.join(root_dir, pattern)):
+        file_name = os.path.basename(file_path)
+        file_number = int(file_name.split('_')[0][1])  # Extracting the label (F1, F2, ..., F9) as integer
+        data_type = 'train' if 'train' in file_name else 'test'
+
+        ts = pd.read_csv(file_path)
+
+        windows_train = []
+        ts_window = []
+
+        for i in range(window_size, len(ts)):
+            windows_train.append(ts.iloc[i - window_size:i].values.flatten())
+            ts_window = ts.iloc[i - window_size:i].copy()
+            new_node_id = 'node_{}_{}'.format(file_number,i)
+            ts_window.index = pd.MultiIndex.from_product([[new_node_id], ts_window['Timestamp']], names=['node_id', 'timestamp'])
+            data[data_type].append(ts_window)
+
+    train_df = pd.concat(data['train'])
+    test_df = pd.concat(data['test'])
+    train_labels = train_df.groupby(level='node_id').agg({'label': 'first'})
+    test_labels = test_df.groupby(level='node_id').agg({'label': 'first'})
+    train_labels.index = pd.MultiIndex.from_product([train_labels.index, [0]], names=['node_id', 'timestamp'])
+    test_labels.index = pd.MultiIndex.from_product([test_labels.index, [0]], names=['node_id', 'timestamp'])
+
+    train_ts = train_df.drop(columns=['label', 'Timestamp'], inplace=False)
+    test_ts = test_df.drop(columns=['label', 'Timestamp'], inplace=False)
+
+    return train_ts, train_labels, test_ts, test_labels
