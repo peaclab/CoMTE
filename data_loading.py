@@ -22,6 +22,7 @@ import os
 from glob import glob
 
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
@@ -29,6 +30,7 @@ from tqdm import tqdm
 def get_dataset(set_name, binary=False, window_size = 10, **kwargs):
     if set_name == 'cstr':
         kwargs['window'] = window_size
+        kwargs['windowize'] = False
         kwargs['skip'] = 1
         kwargs['trim'] = 1
         return get_dataset_csv(**kwargs)
@@ -101,8 +103,8 @@ def process_data(timeseries, labels, classes=None, **kwargs):
     timeseries, labels = select_classes(timeseries, labels, classes=classes)
     timeseries = timeseries.dropna(axis=0)
     assert(not timeseries.isnull().any().any())
-    if kwargs.get('windowize', True):
-        return windowize(timeseries, labels, **kwargs)
+    # if kwargs.get('windowize', True):
+    #     return windowize(timeseries, labels, **kwargs)
     return timeseries, labels
 
 
@@ -209,7 +211,8 @@ def get_dataset_csv(**kwargs):
     train_data, train_labels, test_data, test_labels = windowize_csv(root_dir, pattern, **kwargs)
     return train_data, train_labels, test_data, test_labels
 
-def windowize_csv(root_dir, pattern="F*.csv", window=5, **kwargs):
+def windowize_csv(root_dir, pattern="F*.csv", window=5, noise_scale=0.1, exclude_columns = ['Timestamp', 'label'], use_classes=None,
+                  **kwargs):
     window_size = window
     data = {'train': [], 'test': [], 'labels_train': [], 'labels_test': []}
 
@@ -220,6 +223,16 @@ def windowize_csv(root_dir, pattern="F*.csv", window=5, **kwargs):
 
         ts = pd.read_csv(file_path)
 
+        # Add noise to DataFrame
+        noisy_df = ts.copy()
+        for column in ts.columns:
+            if column not in exclude_columns:
+                # Add noise to non-excluded columns
+                std_dev = ts[column].std()
+                noise = np.random.normal(0, std_dev*noise_scale, ts.shape[0])  # Example of Gaussian noise
+                noisy_df[column] += noise
+
+        ts = noisy_df
         windows_train = []
         ts_window = []
 
@@ -232,12 +245,14 @@ def windowize_csv(root_dir, pattern="F*.csv", window=5, **kwargs):
 
     train_df = pd.concat(data['train'])
     test_df = pd.concat(data['test'])
-    train_labels = train_df.groupby(level='node_id').agg({'label': 'first'})
-    test_labels = test_df.groupby(level='node_id').agg({'label': 'first'})
+    train_labels = train_df.groupby(level='node_id').agg({'label': 'last'})
+    test_labels = test_df.groupby(level='node_id').agg({'label': 'last'})
     train_labels.index = pd.MultiIndex.from_product([train_labels.index, [0]], names=['node_id', 'timestamp'])
     test_labels.index = pd.MultiIndex.from_product([test_labels.index, [0]], names=['node_id', 'timestamp'])
 
-    train_ts = train_df.drop(columns=['label', 'Timestamp'], inplace=False)
-    test_ts = test_df.drop(columns=['label', 'Timestamp'], inplace=False)
+    train_ts = train_df.drop(columns=exclude_columns, inplace=False)
+    test_ts = test_df.drop(columns=exclude_columns, inplace=False)
 
+    train_ts, train_labels = process_data(train_ts, train_labels, use_classes)
+    test_ts, test_labels = process_data(train_ts, train_labels, use_classes)
     return train_ts, train_labels, test_ts, test_labels
