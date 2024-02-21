@@ -340,8 +340,7 @@ class BruteForceSearch(BaseExplanation):
                          best_column, best_case)
         return best_column, best_case
 
-    def explain(self, x_test, to_maximize_class=None, num_features=10,return_dist=False, savefig=False):
-        to_maximize = list(self.clf.classes_).index(to_maximize_class)
+    def explain(self, x_test, to_maximize=None, num_features=10,return_dist=False, savefig=False):
         orig_preds = self.clf.predict_proba(x_test)
         orig_label = np.argmax(orig_preds)
         if to_maximize is None:
@@ -350,7 +349,7 @@ class BruteForceSearch(BaseExplanation):
             return []
         if not self.silent:
             logging.info("Working on turning label from %s to %s",
-                         self.clf.classes_[orig_label], to_maximize_class)
+                         orig_label, to_maximize)
         distractors = self._get_distractors(
             x_test, to_maximize, n_distractors=self.num_distractors)
         best_explanation = set()
