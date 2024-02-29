@@ -326,5 +326,5 @@ def windowize_csv(root_dir, pattern="F*.csv", window=5, noise_scale=0.1, exclude
     test_ts = test_df.drop(columns=exclude_columns, inplace=False)
 
     train_ts, train_labels = process_data(train_ts, train_labels, use_classes)
-    test_ts, test_labels = process_data(train_ts, train_labels, use_classes)
+    test_ts, test_labels = process_data(test_ts, test_labels, use_classes)
     return train_ts, train_labels, test_ts, test_labels
