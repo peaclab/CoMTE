@@ -20,6 +20,7 @@ import random
 from pathlib import Path
 import os
 from glob import glob
+import re
 
 import pandas as pd
 import numpy as np
@@ -27,13 +28,15 @@ from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
 
-def get_dataset(set_name, binary=False, window_size = 10, **kwargs):
-    if set_name == 'cstr':
-        kwargs['window'] = window_size
+def get_dataset(set_name, binary=False, window_size = 10, exclude_columns=[], **kwargs):
+    if set_name in ['cstr', 'pronto']:
+        kwargs['window_size'] = window_size
         kwargs['windowize'] = False
         kwargs['skip'] = 1
         kwargs['trim'] = 1
-        return get_dataset_csv(**kwargs)
+        # kwargs['noise_scale'] = 1
+        # kwargs['test_split_size'] = 1
+        return get_dataset_csv(set_name, exclude_columns, **kwargs)
     if set_name not in ['taxonomist', 'hpas', 'test', 'natops']:
         raise ValueError("Wrong set_name")
     if binary:
@@ -204,12 +207,81 @@ def read_csv_wrapper(root_dir, pattern="F*.csv", **kwargs):
     
     return timeseries, labels, test_timeseries, test_labels
 
-def get_dataset_csv(**kwargs):
-    pattern = kwargs.get('pattern', "F*.csv")
-    root_dir = kwargs.get('rootdir', './data/CSTR1')
-    # train_data, train_labels, test_data, test_labels = read_csv_wrapper(root_dir, pattern, **kwargs)
-    train_data, train_labels, test_data, test_labels = windowize_csv(root_dir, pattern, **kwargs)
-    return train_data, train_labels, test_data, test_labels
+def get_dataset_csv(set_name, exclude_columns, **kwargs):
+    if set_name == 'cstr':
+        pattern = kwargs.get('pattern', "F*.csv")
+        root_dir = kwargs.get('rootdir', './data/CSTR1')
+        # train_data, train_labels, test_data, test_labels = read_csv_wrapper(root_dir, pattern, **kwargs)
+        train_data, train_labels, test_data, test_labels = windowize_csv(root_dir, pattern, **kwargs)
+        return train_data, train_labels, test_data, test_labels
+    else:
+        pattern = kwargs.get('pattern', "test_*.csv")
+        root_dir = kwargs.get('rootdir', './data/' + set_name)
+        # train_data, train_labels, test_data, test_labels = read_csv_wrapper(root_dir, pattern, **kwargs)
+        train_data, train_labels, test_data, test_labels = windowize_and_split(root_dir, pattern, exclude_columns, **kwargs)
+        return train_data, train_labels, test_data, test_labels
+
+def add_noise(ts, noise_scale):
+
+    if noise_scale == 0:
+        return ts
+    
+    noisy_df = ts.copy()
+    for column in ts.columns:
+        if column not in ['Timestamp', 'label']:
+            # Add noise to non-excluded columns
+            std_dev = ts[column].std()
+            noise = np.random.normal(0, std_dev*noise_scale, ts.shape[0])  # Example of Gaussian noise
+            noisy_df[column] += noise
+    return noisy_df
+
+def windowize_and_split(root_dir, pattern="test_*.csv",  exclude_columns = [], window_size=5, noise_scale=0, train_split_size=0.8, test_split_size=0.2, use_classes=None,
+                  **kwargs):
+    
+    ts_windowized = []
+
+    for file_path in glob(os.path.join(root_dir, pattern)):
+        file_name = os.path.basename(file_path)
+        file_number = int(re.split('\_|\.',file_name)[1])  # Extracting the label (F1, F2, ..., F9) as integer
+
+        ts = pd.read_csv(file_path)
+
+        ts.drop(columns=exclude_columns, inplace=True)
+        ts = add_noise(ts, noise_scale)
+        
+        windows_train = []
+        ts_window_temp = []
+
+        for i in range(window_size, len(ts)):
+            windows_train.append(ts.iloc[i - window_size:i].values.flatten())
+            ts_window_temp = ts.iloc[i - window_size:i].copy()
+            new_node_id = 'node_{}_{}'.format(file_number,i)
+            ts_window_temp.index = pd.MultiIndex.from_product([[new_node_id], ts_window_temp['Timestamp']], names=['node_id', 'timestamp'])
+            ts_windowized.append(ts_window_temp)
+
+    ts_windowized_df = pd.concat(ts_windowized)
+
+
+    ts_windowized_df_labels = ts_windowized_df.groupby(level='node_id').agg({'label': 'last'})
+    ts_windowized_df_labels.index = pd.MultiIndex.from_product([ts_windowized_df_labels.index, [0]], names=['node_id', 'timestamp'])
+
+    ts_windowized_df.drop(columns=['Timestamp', 'label'], inplace=True)
+
+
+    train_nodeids, test_nodeids = train_test_split(
+                ts_windowized_df.index.get_level_values('node_id').unique(), train_size=train_split_size, test_size=test_split_size, random_state=0)
+    test_timeseries = ts_windowized_df.loc[test_nodeids, :, :]
+    test_labels = ts_windowized_df_labels.loc[test_nodeids, :, :]
+    timeseries = ts_windowized_df.loc[train_nodeids, :, :]
+    labels = ts_windowized_df_labels.loc[train_nodeids, :, :]
+
+
+    train_ts, train_labels = process_data(timeseries, labels, use_classes)
+    test_ts, test_labels = process_data(test_timeseries, test_labels, use_classes)
+
+    return train_ts, train_labels, test_ts, test_labels
+
+
 
 def windowize_csv(root_dir, pattern="F*.csv", window=5, noise_scale=0.1, exclude_columns = ['Timestamp', 'label'], use_classes=None,
                   **kwargs):
