@@ -230,7 +230,7 @@ def add_noise(ts, noise_scale):
     for column in ts.columns:
         if column not in ['Timestamp', 'label']:
             # Add noise to non-excluded columns
-            std_dev = ts[column].std()
+            std_dev = ts[column].mean()
             noise = np.random.normal(0, std_dev*noise_scale, ts.shape[0])  # Example of Gaussian noise
             noisy_df[column] += noise
     return noisy_df
@@ -300,7 +300,7 @@ def windowize_csv(root_dir, pattern="F*.csv", window=5, noise_scale=0.1, exclude
         for column in ts.columns:
             if column not in exclude_columns:
                 # Add noise to non-excluded columns
-                std_dev = ts[column].std()
+                std_dev = ts[column].mean()
                 noise = np.random.normal(0, std_dev*noise_scale, ts.shape[0])  # Example of Gaussian noise
                 noisy_df[column] += noise
 
